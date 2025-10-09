@@ -1,0 +1,41 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata: { name: imo-api, namespace: imo-system }
+spec:
+  replicas: 2
+  selector: { matchLabels: { app: imo-api } }
+  template:
+    metadata: { labels: { app: imo-api } }
+    spec:
+      containers:
+      - name: api
+        image: imo-api:0.1.0   # for Kind-loaded local image
+        ports: [{ name: http, containerPort: 8080 }]
+        resources:
+          requests: { cpu: "100m", memory: "128Mi" }
+          limits:   { cpu: "500m", memory: "256Mi" }
+---
+apiVersion: v1
+kind: Service
+metadata: { name: imo-api, namespace: imo-system }
+spec:
+  selector: { app: imo-api }
+  ports: [{ name: http, port: 80, targetPort: 8080 }]
+---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata: { name: imo-api, namespace: imo-system }
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: imo-api
+  minReplicas: 2
+  maxReplicas: 10
+  metrics:
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: Utilization
+        averageUtilization: 60
