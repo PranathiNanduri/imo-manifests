@@ -9,7 +9,7 @@ spec:
     spec:
       containers:
       - name: api
-        image: imo-api:0.1.0   # for Kind-loaded local image
+        image: ghcr.io/pranathinanduri/imo-api:sha-dbabd23a28d86113143232f02fbd11b83a4051a6
         ports: [{ name: http, containerPort: 8080 }]
         resources:
           requests: { cpu: "100m", memory: "128Mi" }
