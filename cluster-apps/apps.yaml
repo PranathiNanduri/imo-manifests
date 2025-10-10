@@ -16,12 +16,29 @@ spec:
       values: |
         grafana:
           defaultDashboardsEnabled: true
-  syncPolicy:
-    automated:
-      prune: true
-      selfHeal: true
-    syncOptions:
-      - CreateNamespace=true
+          resources:
+            requests: { cpu: 50m, memory: 128Mi }
+        prometheus:
+          prometheusSpec:
+            # emptyDir so we don't need a PVC on kind
+            storageSpec: {}
+            resources:
+              requests: { cpu: 100m, memory: 256Mi }
+            retention: 12h
+        alertmanager:
+          alertmanagerSpec:
+            storage: {}
+            resources:
+              requests: { cpu: 50m, memory: 128Mi }
+        kube-state-metrics:
+          resources:
+            requests: { cpu: 50m, memory: 128Mi }
+        nodeExporter:
+          resources:
+            requests: { cpu: 25m, memory: 64Mi }
+        prometheusOperator:
+          resources:
+            requests: { cpu: 50m, memory: 128Mi }
 ---
 apiVersion: argoproj.io/v1alpha1
 kind: Application
