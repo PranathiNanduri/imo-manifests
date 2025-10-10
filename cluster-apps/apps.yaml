@@ -1,10 +1,27 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
-metadata: { name: imo-api, namespace: argocd }
+metadata:
+  name: monitoring
+  namespace: argocd
 spec:
-  destination: { server: https://kubernetes.default.svc, namespace: imo-system }
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: monitoring
   source:
-    repoURL: https://github.com/<you>/imo-manifests.git
-    targetRevision: main
-    path: apps/imo-api
-  syncPolicy: { automated: { prune: true, selfHeal: true } }
+    repoURL: https://prometheus-community.github.io/helm-charts
+    chart: kube-prometheus-stack
+    targetRevision: 61.4.0
+    helm:
+      values: |
+        grafana:
+          defaultDashboardsEnabled: true
+        # Optional but helpful:
+        prometheusOperator:
+          admissionWebhooks:
+            enabled: true
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+    - CreateNamespace=true
