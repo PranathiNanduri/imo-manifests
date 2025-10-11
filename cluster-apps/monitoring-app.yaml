@@ -1,0 +1,51 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: monitoring
+  namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "0"
+spec:
+  project: default
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: monitoring
+  source:
+    repoURL: https://prometheus-community.github.io/helm-charts
+    chart: kube-prometheus-stack
+    targetRevision: 61.4.0
+    helm:
+      values: |
+        crds:
+          enabled: false
+        grafana:
+          defaultDashboardsEnabled: true
+          resources:
+            requests: { cpu: 50m, memory: 128Mi }
+        prometheus:
+          prometheusSpec:
+            storageSpec: {}
+            resources:
+              requests: { cpu: 100m, memory: 256Mi }
+            retention: 12h
+        alertmanager:
+          alertmanagerSpec:
+            storage: {}
+            resources:
+              requests: { cpu: 50m, memory: 128Mi }
+        kube-state-metrics:
+          resources:
+            requests: { cpu: 50m, memory: 128Mi }
+        nodeExporter:
+          resources:
+            requests: { cpu: 25m, memory: 64Mi }
+        prometheusOperator:
+          resources:
+            requests: { cpu: 50m, memory: 128Mi }
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+      - ServerSideApply=true
