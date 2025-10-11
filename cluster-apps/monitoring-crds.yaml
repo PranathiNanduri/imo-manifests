@@ -4,7 +4,7 @@ metadata:
   name: monitoring-crds
   namespace: argocd
   annotations:
-    # Ensure CRDs are applied before the main monitoring chart
+    # ensure CRDs install BEFORE kube-prometheus-stack
     argocd.argoproj.io/sync-wave: "-1"
 spec:
   project: default
@@ -14,10 +14,8 @@ spec:
   source:
     repoURL: https://prometheus-community.github.io/helm-charts
     chart: prometheus-operator-crds
-    # Argo requires a targetRevision for Helm charts.
-    # Use a semver constraint so you don't have to hard-pin a specific version.
-    # (Argo supports semver ranges for Helm charts.)
-    targetRevision: '>=0.0.0'
+    # Pin a known-good major; you can widen later if you like
+    targetRevision: 24.0.0
   syncPolicy:
     automated:
       prune: true
