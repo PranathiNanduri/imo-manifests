@@ -7,7 +7,7 @@ spec:
   project: default
   destination:
     server: https://kubernetes.default.svc
-    namespace: argocd
+    namespace: imo-system            # <-- was argocd; set to imo-system
   source:
     repoURL: https://github.com/PranathiNanduri/imo-manifests.git
     targetRevision: main
@@ -16,3 +16,5 @@ spec:
     automated:
       prune: true
       selfHeal: true
+    syncOptions:
+      - CreateNamespace=true         # <-- let Argo create the namespace
