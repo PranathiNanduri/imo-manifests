@@ -1,3 +1,4 @@
+# cluster-apps/apps.yaml (or wherever your imo-api Application lives)
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
@@ -7,7 +8,7 @@ spec:
   project: default
   destination:
     server: https://kubernetes.default.svc
-    namespace: imo-system            # <-- was argocd; set to imo-system
+    namespace: imo-system           # <-- CHANGE THIS
   source:
     repoURL: https://github.com/PranathiNanduri/imo-manifests.git
     targetRevision: main
@@ -17,4 +18,5 @@ spec:
       prune: true
       selfHeal: true
     syncOptions:
-      - CreateNamespace=true         # <-- let Argo create the namespace
+      - CreateNamespace=true
+
