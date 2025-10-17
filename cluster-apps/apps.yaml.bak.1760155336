@@ -1,0 +1,246 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: monitoring-crds
+  namespace: argocd
+spec:
+  project: default
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: monitoring
+  source:
+    repoURL: https://prometheus-community.github.io/helm-charts
+    chart: prometheus-operator-crds
+    targetRevision: 23.0.0   # CRDs-only chart (works well with recent stacks)
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+      - ServerSideApply=true
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: monitoring
+  namespace: argocd
+spec:
+  project: default
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: monitoring
+  source:
+    repoURL: https://prometheus-community.github.io/helm-charts
+    chart: kube-prometheus-stack
+    targetRevision: 61.4.0
+    helm:
+      values: |
+        grafana:
+          defaultDashboardsEnabled: true
+          resources:
+            requests: { cpu: 50m, memory: 128Mi }
+        prometheus:
+          prometheusSpec:
+            # emptyDir so we don't need a PVC on kind
+            storageSpec: {}
+            resources:
+              requests: { cpu: 100m, memory: 256Mi }
+            retention: 12h
+        alertmanager:
+          alertmanagerSpec:
+            storage: {}
+            resources:
+              requests: { cpu: 50m, memory: 128Mi }
+        kube-state-metrics:
+          resources:
+            requests: { cpu: 50m, memory: 128Mi }
+        nodeExporter:
+          resources:
+            requests: { cpu: 25m, memory: 64Mi }
+        prometheusOperator:
+          resources:
+            requests: { cpu: 50m, memory: 128Mi }
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: imo-api
+  namespace: argocd
+spec:
+  project: default
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: argocd
+  source:
+    repoURL: https://github.com/PranathiNanduri/imo-manifests.git
+    targetRevision: main
+    path: apps/imo-api
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: monitoring-crds
+  namespace: argocd
+spec:
+  project: default
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: monitoring
+  source:
+    repoURL: https://prometheus-community.github.io/helm-charts
+    chart: kube-prometheus-stack-crds
+    targetRevision: 61.4.0
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+      - ServerSideApply=true
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: monitoring-crds
+  namespace: argocd
+spec:
+  project: default
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: monitoring
+  source:
+    repoURL: https://prometheus-community.github.io/helm-charts
+    chart: kube-prometheus-stack-crds
+    targetRevision: 61.4.0
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+      - ServerSideApply=true
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: monitoring-crds
+  namespace: argocd
+spec:
+  project: default
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: monitoring
+  source:
+    repoURL: https://prometheus-community.github.io/helm-charts
+    chart: kube-prometheus-stack-crds
+    targetRevision: 61.4.0
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+      - ServerSideApply=true
+
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: monitoring-crds
+  namespace: argocd
+spec:
+  project: default
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: monitoring
+  source:
+    repoURL: https://prometheus-community.github.io/helm-charts
+    chart: prometheus-operator-crds
+    # tip: omit targetRevision to pull the latest; once things are green,
+    # you can pin a version explicitly for reproducibility.
+    # targetRevision: 24.0.0
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+      - ServerSideApply=true
+
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: monitoring-crds
+  namespace: argocd
+spec:
+  project: default
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: monitoring
+  source:
+    repoURL: https://prometheus-community.github.io/helm-charts
+    chart: prometheus-operator-crds
+    # You can omit targetRevision to track latest; once stable, pin a version.
+    # targetRevision: 14.0.0
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+      - ServerSideApply=true
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: monitoring-crds
+  namespace: argocd
+  annotations:
+    # ensure CRDs install BEFORE the main monitoring app
+    argocd.argoproj.io/sync-wave: "-1"
+spec:
+  project: default
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: monitoring
+  source:
+    repoURL: https://prometheus-community.github.io/helm-charts
+    chart: prometheus-operator-crds
+    targetRevision: 24.0.0
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+      - ServerSideApply=true
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: monitoring-crds
+  namespace: argocd
+  annotations:
+    # ensure CRDs install BEFORE kube-prometheus-stack
+    argocd.argoproj.io/sync-wave: "-1"
+spec:
+  project: default
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: monitoring
+  source:
+    repoURL: https://prometheus-community.github.io/helm-charts
+    chart: prometheus-operator-crds
+    targetRevision: 24.0.0
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+      - ServerSideApply=true
